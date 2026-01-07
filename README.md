@@ -24,9 +24,9 @@ A simple full-stack Todo List application built using Python Flask and REST APIs
 This project was built to apply REST API concepts learned through certification.
 
 ## How to Run
-pip install -r requirement.txt
-python init_db.py
-python app.py
+-pip install -r requirement.txt
+-python init_db.py
+-python app.py
 
 ## Author
 Tharun PJ
