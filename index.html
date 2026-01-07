@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>TODO LIST</title>
+
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: #f4f6f8;
+            padding: 30px;
+        }
+
+        .container {
+            max-width: 700px;
+            margin: auto;
+            background: white;
+            padding: 20px;
+            border-radius: 6px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
+
+        h2 {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        input {
+            padding: 8px;
+            width: 70%;
+        }
+
+        button {
+            padding: 8px 12px;
+            margin-left: 5px;
+            cursor: pointer;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+
+        th, td {
+            border: 1px solid #ddd;
+            padding: 10px;
+            text-align: center;
+        }
+
+        th {
+            background: #007bff;
+            color: white;
+        }
+
+        .done {
+            text-decoration: line-through;
+            color: gray;
+        }
+
+        .delete-btn {
+            background: #dc3545;
+            color: white;
+            border: none;
+        }
+
+        .complete-btn {
+            background: #28a745;
+            color: white;
+            border: none;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h2>Todo List</h2>
+
+    <input type="text" id="title" placeholder="Enter new todo">
+    <button onclick="addTodo()">Add</button>
+
+    <table>
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Task</th>
+                <th>Status</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody id="todoTable"></tbody>
+    </table>
+</div>
+
+<script>
+    const API_URL = "http://127.0.0.1:5000/todos";
+
+    function loadTodos() {
+        fetch(API_URL)
+            .then(res => res.json())
+            .then(data => {
+                const table = document.getElementById("todoTable");
+                table.innerHTML = "";
+
+                data.forEach(todo => {
+                    table.innerHTML += `
+                        <tr>
+                            <td>${todo.id}</td>
+                            <td class="${todo.completed ? 'done' : ''}">
+                                ${todo.title}
+                            </td>
+                            <td>${todo.completed ? 'Done' : 'Pending'}</td>
+                            <td>
+                                <button class="complete-btn"
+                                onclick="completeTodo(${todo.id}, '${todo.title}', ${todo.completed})">
+
+                                    ✔
+                                </button>
+                                <button class="delete-btn" onclick="deleteTodo(${todo.id})">
+                                    ✖
+                                </button>
+                            </td>
+                        </tr>
+                    `;
+                });
+            });
+    }
+
+    function addTodo() {
+        const title = document.getElementById("title").value;
+
+        fetch(API_URL, {
+            method: "POST",
+            headers: {"Content-Type": "application/json"},
+            body: JSON.stringify({title})
+        }).then(() => {
+            document.getElementById("title").value = "";
+            loadTodos();
+        });
+    }
+
+    function completeTodo(id, title, completed) {
+    fetch(`${API_URL}/${id}`, {
+        method: "PUT",
+        headers: {"Content-Type": "application/json"},
+        body: JSON.stringify({
+            title: title,
+            completed: completed ? 0 : 1
+        })
+    }).then(loadTodos);
+}
+
+
+    function deleteTodo(id) {
+        fetch(`${API_URL}/${id}`, {
+            method: "DELETE"
+        }).then(loadTodos);
+    }
+
+    loadTodos();
+</script>
+
+</body>
+</html>
